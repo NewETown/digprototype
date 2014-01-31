@@ -20,7 +20,7 @@ if(isset($_POST['username'])) {
 
 if(isset($_POST['password'])) {
 	$password = $_POST['password'];
-	$password = trim($password);
+	$password = md5(trim($password));
 }
 
 getHeader();
@@ -31,7 +31,7 @@ getHeader();
 
 try {
 
-$sql = 'SELECT user_name, password FROM users WHERE user_name=:usr';
+$sql = 'SELECT user_name, long_pw FROM users WHERE user_name=:usr';
 
 $q = $conn->prepare($sql);
 
@@ -41,14 +41,21 @@ $r = $q->fetch();
 
 $q->closeCursor();
 
-if($password == $r['password']) {
+// $password = hash('sha256', $r['salt'] + $password);
+
+$valid = validate_password($password, $r['long_pw']);
+
+if($valid) {
 	echo("<p>Username: " . $r['user_name'] . "</p>");
-	echo("<p>Password checks out!</p>");
+	// echo("<p>Hash: " . $r['password'] . "</p>");
+	// echo("<p>Salt: " . $r['salt'] . "</p>");
+	echo("<p>Valid: " . $valid . "</p>");
 } else if(empty($r)) {
 	echo("<p>Sorry that username doesn't exist.</p>");
 	echo("<p><a href=\"index.php\">Go back</a></p>");
 } else {
 	echo("<p>Sorry your password didn't work</p>");
+	echo("<p>Valid: " . $valid . "</p>");
 	echo("<p><a href=\"index.php\">Go back</a></p>");
 }
 
