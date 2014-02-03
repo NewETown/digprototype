@@ -1,0 +1,19 @@
+.test {
+	border: solid 1px black;
+	padding: 5px;
+	width: 200px;
+}
+
+.test:before {
+	content: 'before';
+	border: solid 1px black;
+	padding: 5px;
+	margin: 0 5px 0 0;
+}
+
+.test:after {
+	content: 'after';
+	border: solid 1px black;
+	padding: 5px;
+	margin: 0 0 0 5px;
+}
