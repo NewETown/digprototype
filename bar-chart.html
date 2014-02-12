@@ -2,9 +2,32 @@
 <html lang="en">
 <head>
 	<title>DIG Test Page</title>
-	<link rel="stylesheet" type="text/css" href="css/custom.css">
 	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 	<meta charset="utf-8">
+	<style type="text/css">
+	.bar {
+		fill: steelblue;
+	}
+
+	.bar:hover {
+		fill: orange;
+	}
+
+	.axis {
+		font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: #000;
+		shape-rendering: crispEdges;
+	}
+
+	.x.axis path {
+		display: none;
+	}
+</style>
 </head>
 <body>
 	<svg class="chart-svg"></svg>

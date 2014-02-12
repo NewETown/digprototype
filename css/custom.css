@@ -1,4 +1,4 @@
-.test {
+/*.test {
 	border: solid 1px black;
 	padding: 5px;
 	width: 200px;
@@ -16,4 +16,57 @@
 	border: solid 1px black;
 	padding: 5px;
 	margin: 0 0 0 5px;
+}
+
+.chart div {
+	font: 10px sans-serif;
+	background-color: steelblue;
+	text-align: right;
+	padding: 3px;
+	margin: 1px;
+	color: white;
+}
+
+.chart-svg rect {
+	fill: steelblue;
+}
+
+.chart-svg text {
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: middle;
+}
+
+.axis text {
+	font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}*/
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
 }
