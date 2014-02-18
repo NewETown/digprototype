@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>DIG Test Page</title>
+	<link rel="stylesheet" type="text/css" href="css/custom.css">
+	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+	<meta charset="utf-8">
+</head>
+<body>
+	<div id="nytg-dialect-graphic" class="g-graphic">
+		<div class="map-container">
+			<div id="map-canvas"></div>
+		</div>
+	</div>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script type="text/javascript">
+	$(document.ready( function() {
+		var $c = $('#nytg-dialect-graphic'),
+			ie = $c.hasClass('ie'),
+			$mapCanvas = $c.find('#map-canvas'),
+			$multiples = $c.find('#smallMultiples'),
+			count = 0,
+			params = getParameters(window.location.href),
+			clickEvent = mobile_browser ? 'click' : 'click', // touchstart
+			stopCount = params && params['count'] ? Number(params['count']) : 25, // total questions
+			numCities = 3, // total cities to display
+			projection,
+			pointRatio = 150,
+			pixelRatio = window.devicePixelRatio || 1, // double the canvas size and scale down on retina
+			mapWidth = 600,
+			mapHeight = mapWidth * .53,
+			mapMargin = { top: .03, bottom: .054, left: .11, right: .11 },
+			mapScaler = 1.08,
+			strokeStyle = '#bbb',
+			lineWidth = 1 * pixelRatio,
+			cityRadius = 3 * pixelRatio,
+			fontLineWidth = 3 * pixelRatio,
+			canvasFont = pixelRatio === 2 ? '500 21px "nyt-franklin","helvetica",arial' : '500 14px "nyt-franklin","helvetica",arial',
+			textHeight = mapWidth < 500 ? 10 * pixelRatio : 14 * pixelRatio, // on mobile, text height of 10
+			fontStrokeStyle = 'rgba(255, 255, 255, 0.85)',
+			// ColorBrewer RdYlBu[11]
+			colors = ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026'],
+			currentQ,
+			questionBank = [],
+			questionData = [[0,8,12,17,22,26,31,34,36,45,57,66,73,84,90,98,109,123,132,142,151,158,165,171,178,186,191,201,211,220,228,237],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+			choiceData,
+			pointsData,
+			geoData,
+			responses,
+			answers = [],
+			simData,
+			simServer = 'http://projects.nytimes.com/dialect', //http://www.nytimes.com/svc/int/dialect
+			thisRoot = window.location.hostname === 'localhost' ? 'http://newsdev.ec2.nytimes.com/preview/2013-12-21-dialect-quiz/master/' : window.location.href.split('?')[0], // root url
+			refer,
+			CODE_CHARS = "0123456789bcdfghjklmnpqrstuvwxyz",  // removed vowels aeio
+			CODE_BITS = 5;   // 5 bits means we need 2^5 == 32 unique chars
+	})
+
+	// setup map
+	// $c.find('.map-container, #map-canvas')
+	// 	.width(mapWidth);
+
+	// get map geography
+	d3.csv('data/points.csv', function(d) { 
+		pointsData = d;
+		d3.json('data/us-nocounties.json', function(d) { 
+			geoData = d;
+		});
+	});
+	function showResults() { //simdata) {
+		// if ( simdata[0][0] === null && simdata[0][simdata[0].length-1] === null ) {
+		//   // skip showing the map if the return is an error
+		//   // load quiz instead
+		//   loadQuizFromMap();
+		//   return;
+		// }
+
+		// // Map values to colors
+		// var colorN = colors.length;
+		// valRange = [d3.min(simdata[0]), d3.max(simdata[0])];
+		// var dx = (valRange[1] - valRange[0])/colorN;
+		// var valDom = [valRange[0]];
+		// for (var i = 1; i < colorN; ++i) {
+		//   valDom.push(valRange[0] + i*dx)
+		// };
+
+		// color = d3.scale.linear()
+		//   .domain(valDom)
+		//   .range(colors)
+		//   .interpolate(d3.interpolateRgb);
+
+		// Add map
+		var width = Math.min(mapWidth, $('#map-canvas').width()),
+		    height = (mapHeight/mapWidth)*width;
+
+		// define projection
+		projection = nytAlbersUsa()
+		  .scale(mapScaler*width*pixelRatio)
+		  .translate([width*pixelRatio / 2, height*pixelRatio / 2]);
+
+		$c.find('canvas').remove();
+
+		var canvas = document.createElement('canvas');
+
+		$c.find('#map-canvas')
+		  .html(canvas);
+		  
+		$c.find('.map-canvas-wrap')
+		  .height(height);
+		  
+		$(canvas)
+		  .attr('id', 'simMap')
+		  .attr('width', width*pixelRatio)
+		  .attr('height', height*pixelRatio)
+		  .attr('viewBox', '0 0 ' + width*pixelRatio + ' ' + height*pixelRatio)
+		  .attr('preserveAspectRatio', 'xMidYMid');
+
+		// define data
+		// simData = simdata[0];
+
+		// var cities = simdata[1],
+		//     len = cities.length,
+		//     leastSimilar = cities.slice(0, numCities),
+		//     mostSimilar = cities.slice(len - numCities, len + 1).reverse(); // similar cities
+
+		// $c.find('.city-btn.most-similar')
+		//   .addClass('hidden-btn')
+		//   .data('cities', mostSimilar)
+		//   .siblings('.least-similar')
+		//     .removeClass('hidden-btn')
+		//     .data('cities', leastSimilar);
+
+		drawMap(canvas); //, mostSimilar);
+	}
+
+	function drawMap(canvas) { //, cities) {
+
+		// $c.find('#map-preloader').fadeTo(650,0);
+
+		var width = canvas.width,
+			height = canvas.height,
+			pointSize = Math.round(width/pointRatio*pixelRatio),
+			ctx = canvas.getContext('2d'),
+			landPath = topojson.mesh(geoData, geoData.objects.land),
+			path = d3.geo.path()
+				.projection(projection)
+				.context(ctx);
+		      
+		// clear canvas
+		ctx.scale(1/pixelRatio, 1/pixelRatio);
+		ctx.clearRect( 0, 0, width, height );
+		ctx.webkitImageSmoothingEnabled = true;
+
+		// define clipping path
+		ctx.lineJoin = 'round';
+		ctx.save();
+		ctx.beginPath();
+		path(landPath);
+		ctx.clip();
+
+		// points
+		ctx.lineWidth = 0;
+		pointsData.map(function (d, i) {
+			var ll = projection([d.lon, d.lat]),
+				x = ll[0],
+				y = ll[1];
+
+			ctx.fillStyle = color(simData[i]);
+			ctx.beginPath();
+			// fix ak and hi on safari
+			if ( d.lat > 50 || d.lon < -140) {
+				ctx.arc(x, y, pointSize/1.5, 2*Math.PI, false);
+				ctx.fill();
+			} else {
+				ctx.fillRect(x - pointSize/2, y - pointSize/2, pointSize, pointSize);
+			}
+		});
+
+		ctx.restore();
+		ctx.strokeStyle = strokeStyle;
+
+		// State boundaries
+		ctx.lineWidth = lineWidth;
+		ctx.beginPath();
+		path(topojson.mesh(geoData, geoData.objects.states, function(a, b) { return a !== b; }));
+		ctx.stroke();
+		ctx.closePath();
+
+		// Outer boundary
+		ctx.beginPath();
+		path(landPath);
+		//ctx.rect(width, 0, -width, height);    // Draw outer rectangle for clipping to boundary
+		ctx.stroke();
+		//ctx.fill();
+		ctx.closePath();
+
+		// if ( cities ) {
+		//   drawCities(canvas, cities);
+		// }
+	}
+
+	// See http://graphics8.nytimes.com/newsgraphics/2013/01/04/north-dakota/1f88aeb1dcbf7916b9650f65863f72bf25537a70/lib/nyt-albers-usa.js
+	function nytAlbersUsa() {
+		var lower48 = d3.geo.albers().rotate([96, 0]).center([0, 38]).parallels([29.5, 45.5]),
+		alaska = d3.geo.albers().rotate([160, 0, -35]).center([45, 44]).parallels([55, 65]),
+		hawaii = d3.geo.albers().rotate([160, 0]).center([0, 20]).parallels([8, 18]);
+
+		function nytAlbersUsa(coordinates) {
+		  return projection(coordinates)(coordinates);
+		}
+
+		function projection(point) {
+		  var lon = point[0], lat = point[1];
+		  return lat > 50 ? alaska : lon < -140 ? hawaii : lower48;
+		}
+
+		nytAlbersUsa.point = function(coordinates, context) {
+		  return projection(coordinates).point(coordinates, context);
+		};
+
+		nytAlbersUsa.line = function(coordinates, context) {
+		  return projection(coordinates[0]).line(coordinates, context);
+		};
+
+		nytAlbersUsa.polygon = function(coordinates, context) {
+		  return projection(coordinates[0].x).polygon(coordinates, context);
+		};
+
+		nytAlbersUsa.scale = function(x) {
+		  if (!arguments.length) return lower48.scale();
+		  lower48.scale(x);
+		  alaska.scale(x * .35);
+		  hawaii.scale(x);
+		  return nytAlbersUsa.translate(lower48.translate());
+		};
+
+		nytAlbersUsa.translate = function(x) {
+		  var k = lower48.scale();
+		  if (!arguments.length) {
+		    x = lower48.translate();
+		    return [x[0] - .007 * k, x[1] - .007 * k];
+		  }
+		  lower48.translate([x[0] + .0075 * k, x[1] + .0065 * k]);
+		  alaska.translate([x[0] - .307 * k, x[1] + .187 * k]);
+		  hawaii.translate([x[0] - .206 * k, x[1] + .196 * k]);
+		  return nytAlbersUsa;
+		};
+
+		return nytAlbersUsa.scale(1056).translate([480, 250]);
+	});
+	</script>
+</body>
+</html>
