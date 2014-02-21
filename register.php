@@ -2,7 +2,6 @@
 
 require_once 'dbconfig.php';
 require_once 'settings.php';
-require_once 'src/facebook.php';
 
 try {
 	$conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -14,6 +13,7 @@ try {
 $f_name = "";
 $l_name = "";
 $password = null;
+$_salt = null;
 $email = "";
 $fb_id = null;
 $date = date_format(new DateTime('now'), ('Y-m-d'));
@@ -61,21 +61,25 @@ if(isset($_REQUEST['country'])) {
 	$country = trim($country);
 }
 
-echo("Data: " . $f_name . " " . $l_name . " " . $email . " " . $fb_id . " " . $password . "\n");
-
 try {
 
-	$sql = 'INSERT INTO users(fb_id, f_name, l_name, email, reg_date, city, state, country)
-					VALUES(:fb_id, :f_name, :l_name, :email, :reg_date, :city, :state, :country)';
+	$sql = 'INSERT INTO users(fb_id, f_name, l_name, password, salt, email, reg_date, city, state, country)
+					VALUES(:fb_id, :f_name, :l_name, :password, :salt, :email, :reg_date, :city, :state, :country)';
 
-	// $password = hash('sha256', $salt + $password);
-
-	// $_h = create_hash($_p);
+	if($password != null) {
+		// Then the user isn't registering through Facebook
+		$_h = create_hash($password);
+		$_t = explode(":", $_h);
+		$_salt = $_t[2];
+		$password = $_t[3];
+	}
 
 	$task = array(
 				':fb_id' => $fb_id,
 				':f_name' => $f_name,
 				':l_name' => $l_name,
+				':password' => $password,
+				':salt' => $_salt,
 				':email' => $email,
 				':reg_date' => $date,
 				':city' => $city,
@@ -89,13 +93,14 @@ try {
 
 	echo("Welcome " . $f_name . " " . $l_name . "!\n");
 	echo("FB_ID: " . $fb_id . "\n");
+	echo("Salt: " . strlen($_salt) . "\n");
+	echo("Password: " . strlen($password) . "\n");
 
 } catch (PDOException $pe) {
 	// die("Error registering user: " . $pe->getCode());
 	if($pe->getCode() == 23000) {
 		echo($pe);
 		echo("You already exist in the database!");
-		// echo("<p><a href=\"index.php\">Go back</a></p>");
 	} else {
 		echo($pe);
 	}

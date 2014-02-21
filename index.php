@@ -12,7 +12,7 @@ try {
 
 $facebook = new Facebook(array(
   'appId'  => '407908079353620',
-  'secret' => '44c2f29a94094105db315373c727fe63',
+  'secret' => $app_secret,
   'fileUpload' => false, // optional
   'allowSignedRequest' => false, // optional, but should be set to false for non-canvas apps
 ));
@@ -36,26 +36,36 @@ getHeader();
 
 ?>
 
-<div style="margin-top:10%;">
+<div class="row">
 	<h1>Register</h1>
 	<form action="register.php" role="form" method="post">
 		<div class="form-group">
-			<label for="username">Username:</label>
-			<input type="text" class="form-control" name="username" placeholder="Please enter a username">
+			<div class="row">
+				<div class="col-md-4">
+					<label for="f_name">First Name:</label>
+					<input type="text" class="form-control" name="first_name" placeholder="Please enter your first name">
+				</div>
+				<div class="col-md-4">
+					<label for="l_name">Last Name:</label>
+					<input type="text" class="form-control" name="last_name" placeholder="Please enter your last name">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-4">
+					<label for="password">Password:</label>
+					<input type="password" class="form-control" name="password" placeholder="Please enter a password">
+				</div>
+				<div class="col-md-4">
+					<label for="email">Email:</label>
+					<input type="text" class="form-control" name="email" placeholder="Please enter an email">
+				</div>
+			</div>
 		</div>
-		<div class="form-group">
-			<label for="password">Password:</label>
-			<input type="password" class="form-control" name="password" placeholder="Please enter a password">
-		</div>
-		<div class="form-group">
-			<label for="email">Email:</label>
-			<input type="text" class="form-control" name="email" placeholder="Please enter an email">
-		</div>
-		<button type="submit" class="btn btn-default pull-right">Submit</button>
+		<button type="submit" class="btn btn-default">Submit</button>
 	</form>
 </div>
 
-<div style="margin-top:5%;">
+<div class="row">
 	<h1>Login</h1>
 	<form action="main.php" role="form" method="post" class="form-inline">
 		<div class="form-group">
@@ -69,19 +79,18 @@ getHeader();
 		</div>
 	</form>
 </div>
-<div id="loginArea" style="margin-top:5%;">
-	<h1>Or Use Facebook</h1>
-	<!--
-	Below we include the Login Button social plugin. This button uses the JavaScript SDK to
-	present a graphical Login button that triggers the FB.login() function when clicked. -->
-
-	<button id="fbLogin" class="btn">Facebook Login</button>
+<div class="row">
+	<div id="loginArea">
+		<h1>Or Use Facebook</h1>
+		<button id="fbLogin" class="btn">Facebook Login</button>
+	</div>
+	<div id="likesArea">
+		<h1>Get Likes</h1>
+		<button id="getLikes" class="btn">Get likes</button>
+	</div>
 </div>
 
-<div id="likesArea" style="margin-top:5%;">
-	<h1>Get Likes</h1>
-	<button id="getLikes" class="btn" style="visibility:hidden;">Get likes</button>
-</div>
+
 
 <?php
 
@@ -106,16 +115,16 @@ window.fbAsyncInit = function() {
 			// The response object is returned with a status field that lets the app know the current
 			// login status of the person. In this case, we're handling the situation where they 
 			// have logged in to the app.
-			$('#getLikes').css("visibility", "visible");
-			$('#loginArea').css('visibility', 'hidden');
+			$('#getLikes').css("display", "block");
+			$('#loginArea').css('display', 'none');
 			FB.api('/me', function(res) {
 				_id = res.id;
 			})
 		} else {
 			// The user isn't auth'd
 			console.log("Not auth'd");
-			$('#getLikes').css("visibility", "hidden");
-			$('#loginArea').css('visibility', 'visible');
+			$('#getLikes').css("display", "none");
+			$('#loginArea').css('display', 'block');
 		}
 	});
 }

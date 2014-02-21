@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 23, 2014 at 05:12 PM
+-- Generation Time: Feb 21, 2014 at 02:10 AM
 -- Server version: 5.6.11
 -- PHP Version: 5.5.0
 
@@ -25,28 +25,69 @@ USE `digprototype`;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `interests`
+--
+
+CREATE TABLE IF NOT EXISTS `interests` (
+  `id` bigint(64) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `category` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `id_2` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interest_map`
+--
+
+CREATE TABLE IF NOT EXISTS `interest_map` (
+  `interest_id` bigint(64) NOT NULL,
+  `fb_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`interest_id`,`fb_id`),
+  KEY `fk_fbID` (`fb_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(10) NOT NULL,
-  `password` varchar(25) NOT NULL,
+  `fb_id` int(11) DEFAULT NULL,
+  `f_name` varchar(15) NOT NULL,
+  `l_name` varchar(20) NOT NULL,
+  `password` varchar(32) DEFAULT NULL,
+  `salt` varchar(32) DEFAULT NULL,
   `email` varchar(30) NOT NULL,
   `reg_date` date NOT NULL,
+  `city` varchar(128) DEFAULT NULL,
+  `state` varchar(128) DEFAULT NULL,
+  `country` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY `user_name` (`user_name`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ;
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `fb_id` (`fb_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
--- Dumping data for table `users`
+-- Constraints for dumped tables
 --
 
-INSERT INTO `users` (`user_id`, `user_name`, `password`, `email`, `reg_date`) VALUES
-(1, 'test1', 'asdf', 'bob@bob.bob', '2014-01-22'),
-(12, 'test2', 'asdf', 'jim@jim.jim', '2014-01-22'),
-(14, 'test5', '1234', 'joe@jim.bob', '2014-01-22');
+--
+-- Constraints for table `interests`
+--
+ALTER TABLE `interests`
+  ADD CONSTRAINT `fk_interestID` FOREIGN KEY (`id`) REFERENCES `interest_map` (`interest_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_fbID` FOREIGN KEY (`fb_id`) REFERENCES `interest_map` (`fb_id`) ON DELETE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -3,6 +3,7 @@ $host = 'localhost';
 $dbname = 'digprototype';
 $username = 'root';
 $password =  '';
+$app_secret = '44c2f29a94094105db315373c727fe63';
 
 /*
  * Password Hashing With PBKDF2 (http://crackstation.net/hashing-security.htm).
