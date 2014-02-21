@@ -13,6 +13,10 @@ try {
 
 $_arr = null;
 $fb_id = 0;
+$count = 0;
+$date = new DateTime('now');
+$date->add(new DateInterval('P7D'));
+$str_date =  date_format($date, ('Y-m-d'));
 
 if(isset($_REQUEST['arr'])) {
 	$_arr = $_REQUEST['arr'];
@@ -21,6 +25,10 @@ if(isset($_REQUEST['arr'])) {
 
 if(isset($_REQUEST['fb_id'])) {
 	$fb_id = $_REQUEST['fb_id'];
+}
+
+if(isset($_REQUEST['count'])) {
+	$count = $_REQUEST['count'];
 }
 
 // {"category":"Musician/band","name":"Jay Z","created_time":"2014-02-19T17:14:34+0000","id":"48382669205"}
@@ -50,11 +58,14 @@ for($i = 0; $i < $_arrSize; $i++) {
 
 		$q->execute($task);
 
+		echo("Likes added");
+
 	} catch (PDOException $pe) {
-		if($pe->getCode() == 23000)
-			echo("duplicate");
-		else
-			echo("Something went wrong!");
+		// if($pe->getCode() == 23000)
+		// 	echo("duplicate");
+		// else
+		// 	echo("Something went wrong!");
+		echo($pe);
 	}
 
 	try {
@@ -70,9 +81,35 @@ for($i = 0; $i < $_arrSize; $i++) {
 
 		$q->execute($task);
 
+		echo("Like mapping finished");
+
 	} catch (PDOException $pe) {
 		echo($pe);
 	}
+}
+
+try {
+
+	if ($count == 0)
+		die("count is 0");
+
+	$sql = 'INSERT INTO likes_refresh_data(fb_id, likes_count, refresh_date)
+					VALUES(:fb_id, :count, :ref_date)';
+
+	$task = array(
+				':fb_id' => $fb_id, 
+				':count' => $count,
+				':ref_date' => $str_date
+				);
+
+	$q = $conn->prepare($sql);
+
+	$q->execute($task);
+
+	echo("Added " . $str_date . " as refresh date for " . $count . " likes.");
+
+} catch (PDOException $pe) {
+	echo($pe);
 }
 
 $conn = null;

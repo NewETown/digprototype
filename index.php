@@ -170,9 +170,14 @@ var page = 0;
 
 $('#getLikes').on('click', function() {
 	// Print out each "like"
-	FB.api('me/likes', function(res) {
-		iteratePages(res);
-	}); 
+	console.log("Fetching likes");
+	if(likes.length == 0) {
+		FB.api('me/likes', function(res) {
+			iteratePages(res);
+		}); 
+	} else {
+		storeLikes();
+	}
 });
 
 function iteratePages(res) {
@@ -197,7 +202,7 @@ function storeLikes() {
 	var stringy = JSON.stringify(likes);
 	$.post(
 		'store_likes.php',
-		{ arr: stringy, fb_id: _id },
+		{ arr: stringy, fb_id: _id, count: likes.length },
 		function(resp) {
 			console.log("Store Likes response:");
 			console.log(resp);
