@@ -36,7 +36,9 @@ getHeader();
 
 ?>
 
-<div class="row">
+
+
+<!-- <div class="row">
 	<h1>Register</h1>
 	<form action="register.php" role="form" method="post">
 		<div class="form-group">
@@ -88,7 +90,7 @@ getHeader();
 		<h1>Get Likes</h1>
 		<button id="getLikes" class="btn">Get likes</button>
 	</div>
-</div>
+</div> -->
 
 
 
@@ -99,7 +101,7 @@ getFooter();
 ?>
 
 <script>
-var firstName = "", lastName =  "", _email = "", _id = 0;
+var firstName = "", lastName =  "", _email = "", _id = 0, lat = 0.00, lng = 0.00;
 
 window.fbAsyncInit = function() {
 	FB.init({
@@ -115,27 +117,34 @@ window.fbAsyncInit = function() {
 			// The response object is returned with a status field that lets the app know the current
 			// login status of the person. In this case, we're handling the situation where they 
 			// have logged in to the app.
-			$('#getLikes').css("display", "block");
-			$('#loginArea').css('display', 'none');
+			//$('#getLikes').css("display", "block");
 			FB.api('/me', function(res) {
 				_id = res.id;
-			})
+				// $('#fbPic').attr('src', 'https://graph.facebook.com/'+ res.id+'/picture?type=small');
+				// $('#fbPic').css('display', 'block');
+				$('#logout').html('Welcome ' + res.first_name);
+				console.log(res.first_name);
+			});
+			$('#login').css('display', 'none');
+			$('#register').css('display', 'none');
 		} else {
 			// The user isn't auth'd
 			console.log("Not auth'd");
-			$('#getLikes').css("display", "none");
-			$('#loginArea').css('display', 'block');
+			$('#login').css('display', 'inline-block');
+			$('#register').css('display', 'inline-block');
+			$('#fbPic').css('display', 'none');
 		}
 	});
 }
 
-$('#fbLogin').on('click', 
+$('#register').on('click', 
 	function () { FB.login( 
 		function (response) {
 			if (response.status=="connected") {
 				// using jQuery to perform AJAX POST.
 				FB.api('/me', function(person) {
 					var _city = null, _state = null, _country = null;
+					getUserLoc();
 					FB.api({
 							method: 'fql.query',
 							query: 'SELECT current_location FROM user WHERE uid='+person.id,
@@ -146,7 +155,7 @@ $('#fbLogin').on('click',
 							_country = loc[0].current_location.country;
 							console.log(_city + " " + _state + " " + _country);
 							$.post('register.php',
-									{ fb_id: person.id, first_name: person.first_name, last_name: person.last_name, email: person.email, city: _city, state: _state, country: _country },
+									{ fb_id: person.id, first_name: person.first_name, last_name: person.last_name, email: person.email, city: _city, state: _state, country: _country, latitude: lat, longitude: lng },
 									function(resp) {
 								// POST callback
 								console.log("POST callback arrived:");
@@ -163,6 +172,13 @@ $('#fbLogin').on('click',
 		},
 		{scope: 'email,user_likes'}
 	)
+});
+
+$('#logout').on('click', function () { 
+	FB.logout(function (response) {console.log("Logged out");})
+	$('#login').css('display', 'inline-block');
+	$('#register').css('display', 'inline-block');
+	$('#logout').css('display', 'none');
 });
 
 var likes = [];
@@ -209,6 +225,21 @@ function storeLikes() {
 		}
 
 	);
+}
+
+function getUserLoc() {
+	if (navigator.geolocation)
+		navigator.geolocation.getCurrentPosition(showPosition);
+	else
+		console.log("Geolocation is not supported by this browser.");
+}
+
+function showPosition(position) {
+	console.log("Lat, lng " + position.coords.latitude + ", " + position.coords.longitude);
+	lat = position.coords.latitude;
+	lng = position.coords.longitude;
+	// _center = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+	// _heatmapData.push(_center);
 }
 
 // Here we run a very simple test of the Graph API after login is successful. 

@@ -20,6 +20,8 @@ $date = date_format(new DateTime('now'), ('Y-m-d'));
 $city = null;
 $state = null;
 $country = null;
+$lat = 0.00;
+$lng = 0.00;
 
 if(isset($_REQUEST["first_name"])) {
 	$f_name = $_REQUEST['first_name'];
@@ -61,10 +63,18 @@ if(isset($_REQUEST['country'])) {
 	$country = trim($country);
 }
 
+if(isset($_REQUEST['latitude'])) {
+	$lat = $_REQUEST['latitude'];
+}
+
+if(isset($_REQUEST['longitude'])) {
+	$lng = $_REQUEST['longitude'];
+}
+
 try {
 
-	$sql = 'INSERT INTO users(fb_id, f_name, l_name, password, salt, email, reg_date, city, state, country)
-					VALUES(:fb_id, :f_name, :l_name, :password, :salt, :email, :reg_date, :city, :state, :country)';
+	$sql = 'INSERT INTO users(fb_id, f_name, l_name, email, reg_date, city, state, country, lat, lng)
+					VALUES(:fb_id, :f_name, :l_name, :email, :reg_date, :city, :state, :country, :lat, :lng)';
 
 	if($password != null) {
 		// Then the user isn't registering through Facebook
@@ -78,13 +88,13 @@ try {
 				':fb_id' => $fb_id,
 				':f_name' => $f_name,
 				':l_name' => $l_name,
-				':password' => $password,
-				':salt' => $_salt,
 				':email' => $email,
 				':reg_date' => $date,
 				':city' => $city,
 				':state' => $state,
-				':country' => $country
+				':country' => $country,
+				':lat' => $lat,
+				':lng' => $lng
 				);
 
 	$q = $conn->prepare($sql);
@@ -93,8 +103,8 @@ try {
 
 	echo("Welcome " . $f_name . " " . $l_name . "!\n");
 	echo("FB_ID: " . $fb_id . "\n");
-	echo("Salt: " . strlen($_salt) . "\n");
-	echo("Password: " . strlen($password) . "\n");
+	echo("Lat: " . $lat . "\n");
+	echo("Lng: " . $lng . "\n");
 
 } catch (PDOException $pe) {
 	// die("Error registering user: " . $pe->getCode());

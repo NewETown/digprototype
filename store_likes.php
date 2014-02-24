@@ -84,7 +84,7 @@ for($i = 0; $i < $_arrSize; $i++) {
 		echo("Like mapping finished");
 
 	} catch (PDOException $pe) {
-		echo($pe);
+		//echo($pe);
 	}
 }
 
@@ -106,10 +106,10 @@ try {
 
 	$q->execute($task);
 
-	echo("Added " . $str_date . " as refresh date for " . $count . " likes.");
+	// echo("Added " . $str_date . " as refresh date for " . $count . " likes.");
 
 } catch (PDOException $pe) {
-	echo($pe);
+	// echo($pe);
 }
 
 $conn = null;

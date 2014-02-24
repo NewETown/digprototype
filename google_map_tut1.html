@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Heatmap Test</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
@@ -12,18 +13,34 @@
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEwAlTq4PEFWq0H59t25BbSFgXrCmyJRU&libraries=visualization&sensor=true">
     </script>
     <script>
-      var geocoder, map, _center, heatmap, _heatmapData = [];
-      geocoder = new google.maps.Geocoder();
+      var geocoder = new google.maps.Geocoder(), map, _center, heatmap, _heatmapData = [];
 
-      geocoder.geocode({'address': 'Seattle, WA'}, function(results, status) {
-        if(status == google.maps.GeocoderStatus.OK) {
-          _center = results[0].geometry.location;
-          populateHeatmapData();
-          initialize();
-        }  else {
-          console.log("Geocode was not successful for the following reason: " + status);
-        }
-      });
+      // geocoder.geocode({'address': 'Seattle, WA'}, function(results, status) {
+      //   if(status == google.maps.GeocoderStatus.OK) {
+      //     _center = results[0].geometry.location;
+      //     // populateHeatmapData();
+      //     initialize();
+      //   }  else {
+      //     console.log("Geocode was not successful for the following reason: " + status);
+      //   }
+      // });
+
+      function getUserLoc() {
+
+        if (navigator.geolocation)
+          navigator.geolocation.getCurrentPosition(showPosition);
+        else
+          console.log("Geolocation is not supported by this browser.");
+      }
+
+      function showPosition(position) {
+        console.log("Lat, lng " + position.coords.latitude + ", " + position.coords.longitude);
+        var thestring = position.coords.latitude + ", " + position.coords.longitude;
+        var bits = thestring.split(/,\s*/);
+        _center = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+        _heatmapData.push(_center);
+        initialize();
+      }
 
       // Generate random heatmap around Seattle
       function populateHeatmapData() {
@@ -47,8 +64,8 @@
       function initialize() {
         var mapOptions = {
           center: _center,
-          zoom: 12,
-          mapTypeId: google.maps.MapTypeId.SATELLITE
+          zoom: 18,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
         map = new google.maps.Map(document.getElementById("map-canvas"),
@@ -63,6 +80,8 @@
         heatmap.setMap(map);
 
       }
+
+      getUserLoc();
 
     </script>
   </head>

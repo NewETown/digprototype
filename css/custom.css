@@ -1,72 +1,40 @@
-/*.test {
-	border: solid 1px black;
-	padding: 5px;
-	width: 200px;
+/*
+ * Masthead for nav
+ */
+
+.blog-masthead {
+  background-color: #428bca;
+  box-shadow: inset 0 -2px 5px rgba(0,0,0,.1);
 }
 
-.test:before {
-	content: 'before';
-	border: solid 1px black;
-	padding: 5px;
-	margin: 0 5px 0 0;
+/* Nav links */
+.blog-nav-item {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  font-weight: 500;
+  color: #cdddeb;
+}
+.blog-nav-item:hover,
+.blog-nav-item:focus {
+  color: #fff;
+  text-decoration: none;
 }
 
-.test:after {
-	content: 'after';
-	border: solid 1px black;
-	padding: 5px;
-	margin: 0 0 0 5px;
+/* Active state gets a caret at the bottom */
+.blog-nav .active {
+  color: #fff;
 }
-
-.chart div {
-	font: 10px sans-serif;
-	background-color: steelblue;
-	text-align: right;
-	padding: 3px;
-	margin: 1px;
-	color: white;
-}
-
-.chart-svg rect {
-	fill: steelblue;
-}
-
-.chart-svg text {
-	fill: white;
-	font: 10px sans-serif;
-	text-anchor: middle;
-}
-
-.axis text {
-	font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-	fill: none;
-	stroke: #000;
-	shape-rendering: crispEdges;
-}*/
-
-.bar {
-  fill: steelblue;
-}
-
-.bar:hover {
-  fill: brown;
-}
-
-.axis {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.x.axis path {
-  display: none;
+.blog-nav .active:after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  vertical-align: middle;
+  content: " ";
+  border-right:  5px solid transparent;
+  border-bottom: 5px solid;
+  border-left:   5px solid transparent;
 }
