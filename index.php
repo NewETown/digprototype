@@ -36,7 +36,22 @@ getHeader();
 
 ?>
 
+<div class="hero">
+	<img src="http://placehold.it/2800x2600&text=STATISTICALLY.ME" class="hero-img">
+</div>
 
+<div class="row text-center">
+	<h2>Learn something about yourself</h2>
+</div>
+
+<div class="row">
+	<h3 class="text-center">Use us to discover you</h3>
+	<div class="col-md-offset-1 col-md-10">
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vestibulum aliquet massa, sed elementum odio adipiscing vel. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla nec accumsan urna, in volutpat risus. Nam vestibulum, nunc ut malesuada aliquam, tellus velit lobortis lorem, id tempus lectus libero ut risus. Vivamus vitae ligula tortor. Vivamus non lacus est. Donec sit amet magna ut metus aliquam vestibulum vitae ut diam. Sed vitae pharetra est. In et mi nec arcu lacinia commodo. Nunc viverra eros sed risus consequat lacinia. Vivamus sed enim et neque molestie vehicula a sollicitudin neque.</p>
+
+		<p>Vestibulum ut scelerisque metus, at consectetur massa. Curabitur quis lacinia purus. Aenean lectus velit, hendrerit at ultricies a, rhoncus et tortor. Vivamus eget orci lobortis, aliquet magna a, aliquet nulla. Mauris eu risus suscipit, euismod urna vitae, congue metus. Integer adipiscing lectus quis faucibus ullamcorper. Quisque vitae mi mauris. Curabitur feugiat est mi, at porttitor massa fermentum a. Vivamus hendrerit eu nunc quis consequat. Proin orci lectus, pretium sit amet ante in, vehicula aliquam quam. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nunc varius nisi a turpis elementum, lobortis consequat massa consectetur. Morbi vehicula tortor sed eleifend auctor. Nunc ac posuere elit. Phasellus laoreet viverra posuere.</p>
+	</div>
+</div>
 
 <!-- <div class="row">
 	<h1>Register</h1>
